@@ -74,5 +74,3 @@ MIT License
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ---
-
-**Note:** Make sure to keep your bot token secure and never commit it to version control.
