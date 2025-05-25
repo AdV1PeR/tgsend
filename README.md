@@ -14,7 +14,7 @@ TG_Send - Bash script to send messages and files via Telegram Bot API with robus
 
 - `bash`     `curl`   `jq`   `file`  `utility`
 
-## Installation: Option 2 - Local:
+## Installation: Option 1 - Local:
 
 1. Clone this repository:
 ```bash
