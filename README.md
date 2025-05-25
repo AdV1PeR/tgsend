@@ -12,10 +12,7 @@ TG_Send - Bash script to send messages and files via Telegram Bot API with robus
 
 ## Requirements
 
-- `bash` (v4.0+)
-- `curl`
-- `jq`
-- `file` utility
+- `bash` (v4.0+) `curl` `jq` `file` utility
 
 ## Installation
 
@@ -35,54 +32,23 @@ declare -r CHAT_ID="your_chat_id_here"
 ```bash
 chmod +x tgsend.sh
 ```
-Here's an improved README.md with installation to `/usr/local/bin`:
-
-# Telegram Bot CLI
-
-A lightweight Bash script for sending messages and files through Telegram Bot API.
-
-## Features
-
-- Send text messages (Markdown supported)
-- Upload files (up to 50MB)
-- Automatic MIME-type detection
-- Error handling and logging
-
-## Requirements
-
-- Bash 4.0+
-- `curl`, `jq`, `file` utilities
-
-## Installation
-
-1. Clone and install system-wide:
-
-```bash
-sudo curl -o /usr/local/bin/tgsend https://raw.githubusercontent.com/yourusername/telegram-bot-cli/main/tgsend.sh
-sudo chmod +x /usr/local/bin/tgsend
-```
-
-2. Create config file:
-
-```bash
-mkdir -p ~/.config/tgsend
-echo 'BOT_TOKEN="your_bot_token_here"' > ~/.config/tgsend/config
-echo 'CHAT_ID="your_chat_id_here"' >> ~/.config/tgsend/config
-chmod 600 ~/.config/tgsend/config
-```
-
-## Usage
-
-```bash
-tgsend -m "Hello World"  # Send message
-tgsend -f file.pdf       # Send file
-tgsend -h                # Show help
-```
+## Option 2: System-wide Installation (recommended)
+  1. Add tgsend.sh to /usr/local/bin/
+  ```bash
+  sudo mv tgsend.sh /usr/local/bin
+  sudo chmod +x tgsend.sh && mv tgsend.sh tgsend
+  ```
 
 ### Send:
+1. Non-System-wide:
 ```bash
 ./tgsend.sh "Hello from Telegram Bot CLI"
 ./tgsend.sh <filename>
+```
+2. System-wide:
+```bash
+tgsend "Hello from Telegram Bot CLI"
+tgsend <filename>
 ```
 
 ## Logging
@@ -94,10 +60,6 @@ All operations are logged to:
 
 ## License
 
-MIT License
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+MIT License, Copyright (c) 2025 AdV1PeR
 
 ---
