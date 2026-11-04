@@ -1,62 +1,116 @@
-# TGSend
-TG_Send - Bash script to send messages and files via Telegram Bot API with robust error handling and logging. Requires curl, jq, and file for seamless integration into automated workflows.
+# tgsend
 
-## Features
+Отправка сообщений и файлов через Telegram Bot API из bash.
+Без зависимостей кроме `curl` и `jq`. Подходит для cron, CI и всяких
+автоматизаций: бэкапы, алерты, отчёты.
 
-- 📨 Send text messages (supports Markdown formatting)
-- 📁 Upload files (up to Telegram's 50MB limit)
-- ✅ Automatic file type detection
-- 🔒 Secure credential validation
-- 📝 Comprehensive logging system
-- 🚦 Error handling with status feedback
+## Возможности
 
-## Requirements
-- `bash`     `curl`   `jq`   `file`  `utility`
+- текст и файлы до 50 МБ (лимит Bot API)
+- длинные сообщения автоматически режутся на части по 4000 символов
+  с переносом по строкам
+- `MarkdownV2` и `HTML` — по флагу, по умолчанию текст отправляется как есть
+- таймауты, ретраи и корректная обработка `429 Too Many Requests`
+  (`retry_after` соблюдается)
+- `--dry-run` — проверить, ничего не отправляя
+- `--silent`, `--topic` (форумы), `--chat` (получатель на один вызов)
+- креды в отдельном файле, а не в скрипте
+- лог с ротацией на 1 МБ
+- внятные ошибки и коды возврата
 
-1. Clone this repository:
+## Требования
+
+- `bash` 4.4+
+- `curl`
+- `jq`
+
+## Установка
+
 ```bash
 git clone https://github.com/AdV1PeR/tgsend.git
 cd tgsend
-```
-
-2. Edit the configuration section in `tgsend.sh`:
-```bash
-declare -r BOT_TOKEN="your_bot_token_here"
-declare -r CHAT_ID="your_chat_id_here"
-```
-
-3. Make the script executable:
-```bash
 chmod +x tgsend.sh
+install -m 755 tgsend.sh ~/.local/bin/tgsend
 ```
-## Option 2: System-wide Installation (recommended)
-  1. Add tgsend.sh to /usr/local/bin/
-  ```bash
-  sudo mv tgsend.sh /usr/local/bin
-  sudo chmod +x tgsend.sh && mv tgsend.sh tgsend
-  ```
 
-### Send:
-1. Non-System-wide:
+Или просто запускать `./tgsend.sh`.
+
+## Настройка
+
+Создайте `~/.config/tgsend/config`:
+
 ```bash
-./tgsend.sh "Hello from Telegram Bot CLI"
-./tgsend.sh <filename>
+TG_BOT_TOKEN="123456789:AA..."
+TG_CHAT_ID="123456789"
 ```
-2. System-wide:
+
+Файл должен быть закрыт: `chmod 600 ~/.config/tgsend/config`.
+Другой путь можно задать через `TG_CONF=/path/to/config`.
+
+Как получить:
+
+- токен — у [@BotFather](https://t.me/BotFather) (`/newbot`)
+- `chat_id` — написать боту `/start`, затем
+  `curl -s "https://api.telegram.org/bot<TOKEN>/getUpdates" | jq '.result[0].message.chat.id'`
+
+## Использование
+
 ```bash
-tgsend "Hello from Telegram Bot CLI"
-tgsend <filename>
+tgsend -m "Привет"
+
+tgsend -f backup.tar.gz -c "еженедельный бэкап"
+
+tgsend -m "**важно**" -M            # MarkdownV2
+tgsend -m "<b>важно</b>" -H         # HTML
+tgsend -s -f report.pdf             # без звука
+tgsend -t 42 -m "в тему форума"     # message_thread_id
+tgsend -C 123456789 -m "другому чату"
+tgsend -n -f big.zip -c "проверка"  # dry-run
 ```
 
-## Logging
+Переменные окружения:
 
-All operations are logged to:
+| Переменная | Значение |
+|---|---|
+| `TG_BOT_TOKEN` | токен бота |
+| `TG_CHAT_ID` | получатель по умолчанию |
+| `TG_CAPTION` | подпись к файлу |
+| `TG_CONF` | путь к конфигу |
+| `TG_MAX_FILE_SIZE` | свой лимит размера файла |
+
+## Логи
+
+`~/.local/log/tgsend/tgsend.log` (права 600). Ротация: при 1 МБ файл
+становится `tgsend.log.1`. Токен и chat_id в лог не пишутся.
+
+## Termux
+
+Termux не имеет `/usr/bin/env`, поэтому если при запуске
+`bad interpreter`, используйте обёртку:
+
+```bash
+pkg install bash curl jq
+bash tgsend.sh -m "test"
 ```
-~/.local/log/tgsend/tgsend.log
-```
 
-## License
+или замените shebang на
+`#!/data/data/com.termux/files/usr/bin/bash`.
 
-MIT License, Copyright (c) 2025 AdV1PeR
+## Безопасность
 
----
+- токен хранится только в конфиге с правами 600
+- токен не попадает в аргументы командной строки, логи и ошибки
+- `--dry-run` не делает сетевых запросов
+- скрипт не скачивает и не исполняет ничего извне
+
+## Коды возврата
+
+| Код | Значение |
+|---|---|
+| 0 | успешно |
+| 1 | ошибка (сеть, API, неверный ввод) |
+| 130 | прервано пользователем |
+
+## Лицензия
+
+MIT. Основано на идее TG_Send, автор AdV1PeR.
