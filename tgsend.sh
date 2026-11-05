@@ -319,9 +319,9 @@ main() {
     init_logging
     log "INFO" "start (v${VERSION})"
     trap 'log "WARN" "interrupted"; exit 130' INT TERM
+    parse_args "$@"
     validate_deps
     validate_credentials
-    parse_args "$@"
     log "INFO" "done"
 }
 
